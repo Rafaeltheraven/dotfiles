@@ -1,0 +1,425 @@
+;==========================================================
+;
+;
+;   ██████╗  ██████╗ ██╗  ██╗   ██╗██████╗  █████╗ ██████╗
+;   ██╔══██╗██╔═══██╗██║  ╚██╗ ██╔╝██╔══██╗██╔══██╗██╔══██╗
+;   ██████╔╝██║   ██║██║   ╚████╔╝ ██████╔╝███████║██████╔╝
+;   ██╔═══╝ ██║   ██║██║    ╚██╔╝  ██╔══██╗██╔══██║██╔══██╗
+;   ██║     ╚██████╔╝███████╗██║   ██████╔╝██║  ██║██║  ██║
+;   ╚═╝      ╚═════╝ ╚══════╝╚═╝   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
+;
+;
+;   To learn more about how to configure Polybar
+;   go to https://github.com/jaagr/polybar
+;
+;   The README contains alot of information
+;
+;==========================================================
+[bar/xmonad]
+inherit = bar/clean
+#modules-left = mpd workspaces-xmonad title-xmonad
+modules-left = mpd ewmh xwindow
+modules-center = 
+
+[bar/clean]
+inherit = bar/main
+cbackg = #53000000
+cone = #888888
+ctwo = #eeeeee
+;cthree = #555555
+cthree = #F51717
+;font-0 = Noto Sans Symbols:style=Bold:pixelsize=10;1
+font-0 = Leelawadee UI:style=Bold:pixelsize=11;1
+font-3 = Siji
+
+[bar/test2]
+inherit = bar/main
+cbackg = #00000000
+cone = #4d4dff
+ctwo = #00ccff
+cthree = #ff6600
+font-0 = Noto Sans Symbols:style=Bold:pixelsize=10;1
+
+
+[bar/main]
+cbackg = #a3000000
+cone = #4d4dff
+ctwo = #00ccff
+cthree = #ff6600
+
+width = 100%
+height = 27
+fixed-center = true
+background = ${root.cbackg}
+foreground = ${root.ctwo}
+line-size = 3
+line-color = #f00
+padding-left = 0
+padding-right = 2
+module-margin-left = 1
+module-margin-right = 2
+
+font-0 = Noto Sans Symbols:style=Regular:pixelsize=10;1
+font-1 = Unifont:style=Sans-Serif:size=8:antialias=false;0
+font-2 = Wuncon siji:pixelsize=10;1
+
+modules-left = title-xmonad
+modules-center = xwindow mpd
+#modules-right = filesystem xbacklight cpu memory temperature battery pulseaudio wlan eth date powermenu
+modules-right = xbacklight battery pulseaudio eth date powermenu
+
+tray-position = right
+tray-padding = 5
+wm-restack = i3
+
+;override-redirect = true
+ 
+scroll-up = i3wm-wsnext
+scroll-down = i3wm-wsprev
+
+click-right = i3-dmenu-desktop
+
+cursor-click = default
+cursor-scroll = default
+
+[module/xwindow]
+type = internal/xwindow
+label = %title%
+label-maxlen=50
+label-underline = ${root.cone}
+label-padding = 2
+
+[module/filesystem]
+type = internal/fs
+interval = 25
+
+mount-0 = /
+mount-1 = /mnt/chad
+
+label-mounted = %{A:baobab:}%mountpoint%%{F-}: %percentage_used%%%{A}
+label-unmounted = %mountpoint% not mounted
+label-unmounted-foreground = ${root.cthree}
+
+[module/i3]
+type = internal/i3
+format = <label-state> <label-mode>
+index-sort = true
+wrapping-scroll = false
+
+#label-seperator = " "
+#label-seperator-underline = ${colours.backround}
+#label-seperator-padding = 2
+
+; Only show workspaces on the same output as the bar
+pin-workspaces = false
+
+label-mode-padding = 2
+label-mode-foreground = ${root.cthree}
+label-mode-background = ${root.cbackg}
+format-mode-background = ${root.cbackg}
+
+; focused = Active workspace on focused monitor
+label-focused = %name%
+label-focused-foreground = ${root.cbackg}
+label-focused-background = ${root.cone}
+label-focused-underline = ${root.ctwo}
+label-focused-padding = 2
+
+; unfocused = Inactive workspace on any monitor
+label-unfocused = %name%
+label-unfocused-padding = 2
+#label-unfocused-underline = ${root.cone}
+
+; visible = Active workspace on unfocused monitor
+label-visible = %name%
+label-visible-background = ${root.cone}
+label-visible-underline = ${root.ctwo}
+label-visible-padding = 2
+
+; urgent = Workspace with urgency hint set
+label-urgent = %name%
+label-urgent-background = ${root.cthree}
+label-urgent-padding = 2
+
+; Separator in between workspaces
+; label-separator = |
+
+
+[module/mpd]
+type = internal/mpd
+format-online =%{A:i3-msg mode music & cantata:} <label-song>  %{A}<icon-prev> <icon-stop> <toggle> <icon-next>
+format-online-background = ${root.cbackg}
+
+icon-prev = 
+icon-stop = 
+icon-play = 
+icon-pause = 
+icon-next = 
+
+#label-song-maxlen = 25
+#label-song-ellipsis = true
+label-padding = 2
+
+[module/xbacklight]
+type = internal/xbacklight
+
+format = %{A5:xbacklight -dec 5:}%{A4:xbacklight -inc 5:}<label> <bar>%{A}%{A}
+label = BL
+
+bar-width = 10
+bar-indicator = |
+bar-indicator-foreground = ${root.cbackg}
+bar-indicator-font = 2
+bar-fill = ─
+bar-fill-font = 2
+bar-fill-foreground = ${root.cthree}
+bar-empty = ─
+bar-empty-font = 2
+bar-empty-foreground = ${root.cone}
+
+[module/backlight-acpi]
+inherit = module/xbacklight
+type = internal/backlight
+card = intel_backlight
+
+[module/cpu]
+type = internal/cpu
+interval = 2
+format-prefix = " "
+format-prefix-foreground = ${root.cthree}
+#format- = #f90000
+label = %{A1:termite -e htop:}%percentage:2%%%{A}
+format-background = ${root.cbackg}
+
+
+[module/memory]
+type = internal/memory
+interval = 2
+format-prefix = " "
+format-prefix-foreground = ${root.cthree}
+#format-underline = #4bffdc
+label = %{A1:termite -e htop:}%percentage_used%%%{A}
+format-background = ${root.cbackg}
+
+[module/wlan]
+type = internal/network
+interface = wlp2s0
+interval = 3.0
+
+format-connected = <ramp-signal> <label-connected>
+label-connected = %essid%
+format-connected-background = ${root.cbackg}
+label-connected-padding = 2
+format-connected-underline = ${root.ctwo}
+
+format-disconnected =
+;format-disconnected = <label-disconnected>
+;format-disconnected-underline = ${self.format-connected-underline}
+;label-disconnected = %ifname% disconnected
+;label-disconnected-foreground = ${root.cthree}
+
+ramp-signal-0 = 
+ramp-signal-1 = 
+ramp-signal-2 = 
+ramp-signal-3 = 
+ramp-signal-4 = 
+ramp-signal-foreground = ${root.cthree}
+
+[module/eth]
+type = internal/network
+interface = enp3s0f1
+interval = 3.0
+
+#format-connected-underline = #55aa55
+format-connected-prefix = " "
+format-connected-prefix-foreground = ${root.cthree}
+label-connected = %local_ip%
+format-connected-background = ${root.cbackg}
+label-connected-padding = 2
+label-connected-underline = ${root.ctwo}
+format-disconnected =
+;format-disconnected = <label-disconnected>
+;format-disconnected-underline = ${self.format-connected-underline}
+;label-disconnected = %ifname% disconnected
+;label-disconnected-foreground = ${root.cthree}
+
+[module/date]
+type = internal/date
+interval = 5
+
+;date =
+date = " %Y-%m-%d"
+
+time = %H:%M
+time-alt = %H:%M
+format-background = ${root.cbackg}
+
+format-prefix = 
+format-prefix-foreground = ${root.cthree}
+#format-underline = #0a6cf5
+
+label = %date% %time%
+
+[module/pulseaudio]
+type = internal/pulseaudio
+
+format-volume = <label-volume> <bar-volume>
+label-volume = VOL %percentage%%
+label-volume-foreground = ${root.foreground}
+format-volume-background = ${root.cbackg}
+
+label-muted = muted
+label-muted-foreground = ${root.cone}
+format-muted-background = ${root.cbackg}
+
+bar-volume-width = 10
+bar-volume-foreground-0 = #55aa55
+bar-volume-foreground-1 = #55aa55
+bar-volume-foreground-2 = #55aa55
+bar-volume-foreground-3 = #55aa55
+bar-volume-foreground-4 = #55aa55
+bar-volume-foreground-5 = #f5a70a
+bar-volume-foreground-6 = #ff5555
+bar-volume-gradient = false
+bar-volume-indicator = |
+bar-volume-indicator-font = 2
+bar-volume-fill = ─
+bar-volume-fill-font = 2
+bar-volume-empty = ─
+bar-volume-empty-font = 2
+bar-volume-empty-foreground = ${root.cthree}
+
+[module/battery]
+type = internal/battery
+battery = BAT1
+adapter = ACAD
+full-at = 98
+format-background = ${root.cbackg}
+format-charging = <animation-charging> <label-charging>
+format-charging-underline = ${root.ctwo}
+
+format-discharging = <animation-discharging> <label-discharging>
+format-discharging-underline = ${root.cone}
+label-discharging = %percentage%%  %time%
+time-format = %H:%M
+
+format-full-prefix = " "
+format-full-prefix-foreground = ${root.cthree}
+format-full-underline = ${root.cthree}
+
+ramp-capacity-0 = 
+ramp-capacity-1 = 
+ramp-capacity-2 = 
+ramp-capacity-foreground = ${root.cthree}
+
+animation-charging-0 = 
+animation-charging-1 = 
+animation-charging-2 = 
+animation-charging-foreground = ${root.cthree}
+animation-charging-framerate = 750
+
+animation-discharging-0 = 
+animation-discharging-1 = 
+animation-discharging-2 = 
+animation-discharging-foreground = ${root.cthree}
+animation-discharging-framerate = 750
+
+[module/temperature]
+type = internal/temperature
+thermal-zone = 0
+warn-temperature = 60
+
+format = <ramp> <label>
+#format-underline = #f50a4d
+format-warn = <ramp> <label-warn>
+#format-warn-underline = ${self.format-underline}
+
+label = %temperature-c%
+label-warn = %temperature-c%
+label-warn-foreground = ${root.cthree}
+
+ramp-0 = 
+ramp-1 = 
+ramp-2 = 
+ramp-foreground = ${root.cthree}
+
+[module/powermenu]
+type = custom/menu
+format-background = ${root.cbackg}
+expand-right = true
+
+format-spacing = 1
+
+label-open = 
+label-open-foreground = ${root.cthree}
+label-close =  cancel
+label-close-foreground = ${root.cthree}
+label-separator = |
+label-separator-foreground = ${root.cthree}
+
+menu-0-0 = reboot
+menu-0-0-exec = menu-open-1
+menu-0-1 = power off
+menu-0-1-exec = menu-open-2
+
+menu-1-0 = cancel
+menu-1-0-exec = menu-open-0
+menu-1-1 = reboot
+menu-1-1-exec = reboot
+
+menu-2-0 = power off
+menu-2-0-exec = poweroff
+menu-2-1 = cancel
+menu-2-1-exec = menu-open-0
+
+[module/workspaces-xmonad]
+type = custom/script
+exec = tail -F /tmp/.xmonad-workspace-log
+exec-if = [ -p /tmp/.xmonad-workspace-log ]
+tail = true
+
+[module/title-xmonad]
+type = custom/script
+exec = tail -F /tmp/.xmonad-title-log
+exec-if = [ -p /tmp/.xmonad-title-log ]
+tail = true
+
+[module/ewmh]
+type = internal/xworkspaces
+enable-scroll = false
+
+format = <label-state>
+
+label-monitor = %name%
+;label-padding = 5
+
+label-occupied = %index% - %name%
+label-occupied-underline = #555555
+label-occupied-padding = 1
+
+label-urgent = %index% - %name%
+label-urgent-foreground = #000000
+label-urgent-background = #bd2c40
+label-urgent-underline = #9b0a20
+
+label-active = [%index% - %name%]
+;label-active-foreground = #ffffff
+;label-active-background = #3f3f3f
+label-active-underline = #fba922
+
+label-empty = %name% - EMPTY
+label-empty-foreground = #55
+label-empty-padding = 1
+
+[settings]
+screenchange-reload = true
+;compositing-background = xor
+;compositing-background = screen
+;compositing-foreground = source
+;compositing-border = over
+
+[global/wm]
+margin-top = 5
+margin-bottom = 5
+
+; vim:ft=dosini
