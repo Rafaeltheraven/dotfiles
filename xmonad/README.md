@@ -1,0 +1,15 @@
+# XMonad
+
+My XMonad setup that tries to sort of replicate the functionality
+found when using awesomewm with the tyrannical plugin. By this I mean
+that there is a small group of set workspaces to which certain programs belong
+and all the rest get their own workspace, all of which are dynamically created and
+removed.
+
+## Some Shortcuts
+`Super-Q` - Kill focused window, if this is the only window on the workspace, 
+move to other workspace and delete old empty one.
+`Super-left/right` - Move to previous/next workspace.
+`Super-Ctrl-*` - Override managehook and spawn the next window on current workspace
+regardless of what window it is.
+`Super-Z` - Spawn dropdown terminal window.
