@@ -17,11 +17,13 @@ echo "...done"
 for file in $files; do
 	if [[ "$file" == "config" ]]; then
 		for file2 in $(ls $dir/$confdir); do
-			echo "Found: $file2"
-			mv ~/.config/$file2 "$olddir/config/"
-			ln -s "$dir/$confdir" ~/.config/$file2
+			if [["$file2" != "README.md"]]; then
+				echo "Found: $file2"
+				mv ~/.config/$file2 "$olddir/config/"
+				ln -s "$dir/$confdir/$file2" ~/.config/$file2
+			fi
 		done
-	elif [[ "$file" != "install.sh" ]]; then
+	elif [[ "$file" != "install.sh" ] && [ "$file" != "README.md" ]]; then
 		echo "Found: $file"
 		mv ~/.$file "$olddir"
 		ln -s "$dir/$file" ~/.$file
