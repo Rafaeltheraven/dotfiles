@@ -9,9 +9,10 @@ removed.
 This setup makes extensive use of EWMH so if that doesn't work for you this won't either.
 
 ## Some Shortcuts
-`Super-Q` - Kill focused window, if this is the only window on the workspace, 
+* `Super-Q` - Kill focused window, if this is the only window on the workspace, 
 move to other workspace and delete old empty one.
-`Super-left/right` - Move to previous/next workspace.
-`Super-Ctrl-*` - Override managehook and spawn the next window on current workspace
+* `Super-left/right` - Move to previous/next workspace.
+* `Super-Ctrl-*` - Override managehook and spawn the next window on current workspace
 regardless of what window it is.
-`Super-Z` - Spawn dropdown terminal window.
+* `Super-Alt-*` - Prompt for a new workspace name, create it and spawn the window on this workspace instead.
+* `Super-Z` - Spawn dropdown terminal window.
