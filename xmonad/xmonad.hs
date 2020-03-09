@@ -38,10 +38,17 @@ import Data.Maybe (isNothing, maybeToList)
 import Data.Function (on)
 import Control.Monad (forM_, join, when)
 
+-- We start with some basic definitions
 myTerminal = "termite"
-myManageHook = (manageHook defaultConfig <+> manageDocks) <+> manageScratchPad <+> toggleHook' "toggle" nestedToggle namedHook
+myManageHook = (manageHook defaultConfig <+> manageDocks) <+> manageScratchPad <+> toggleHook' "toggle" toggleFriend namedHook
 altMask = mod1Mask
 
+-- |An XPConfig plucked from github, maybe improve later
+myXPConfig :: XPConfig
+myXPConfig =
+  def { position = Top, font = "xft:DejaVu Sans:size=9", height = 40 }
+
+-- |Basic scratchpad managehook stolen from somewhere, don't remember.
 manageScratchPad :: ManageHook
 manageScratchPad = scratchpadManageHook (W.RationalRect l t w h)
     where
@@ -50,18 +57,22 @@ manageScratchPad = scratchpadManageHook (W.RationalRect l t w h)
         t = 0.025 -- distance from top edge
         l = 1 - w -- distance from left edge
 
+-- |Takes a tuple with a the name of a workspace and a set of window classNames,
+-- mapping windows to specific workspaces. Returns a list of maybeManageHook to be used in composeOne
 nameHelpFriend :: (String, [String]) -> [MaybeManageHook]
 nameHelpFriend (name,names) = [className =? t -?> liftX (appendWorkspace name) >> doShift name | t <- names]
 
+-- |A query to check if a certain window attribute is *not* found in the given list x.
 querNotElem :: Eq a => Query a -> [a] -> Query Bool
 querNotElem q x = fmap (not . (flip elem x)) q
 
+-- |The big hook which does all the managing I want.
 namedHook :: ManageHook
 namedHook = composeOne $
-    [transience]
+    [transience] -- Fix floating "transient" windows
     ++ [stringProperty "WM_WINDOW_ROLE" =? "scratchpad" -?> idHook] -- Fuck you xmonad and fuck you x and fuck you termite as well
-    ++ (concat (map nameHelpFriend specialBoys))
-    ++ [querNotElem className floatyBoys -?> className >>= (\t -> liftX (appendWorkspace t) >> doShift t)]
+    ++ (concat (map nameHelpFriend specialBoys)) -- Map all the things in specialBoys
+    ++ [querNotElem className floatyBoys -?> className >>= (\t -> liftX (appendWorkspace t) >> doShift t)] -- If a window is *not* part of the special float case, created a workspace with the window name and move the window there.
         where
             specialBoys =
                 [("Internet", ["Firefox", "nightly", "Chromium", "Firefox Developer Edition", "firefoxdeveloperedition", "Epiphany"])
@@ -84,34 +95,21 @@ namedHook = composeOne $
 --            	,"KeePassXC"
             	]
 
-nestedToggle :: ManageHook
-nestedToggle = toggleHook' "newWS" newWSFriend toggleFriend
---nestedToggle = toggleHook' "newWS" toggleFriend newWSFriend
-
+-- |A basic managehook used to toggle the big namedHook back on.
 toggleFriend :: ManageHook
 toggleFriend = idHook $ liftX (toggleHookNext "toggle")
 
-newWSFriend :: ManageHook
-newWSFriend = idHook $ liftX (appendWorkspacePrompt defaultXPConfig) >> liftX (toggleHookNext "newWS") >> liftX (toggleHookNext "toggle")
-
 main :: IO ()
 main = do
-    forM_ [".xmonad-workspace-log", ".xmonad-title-log"] $ \file -> do
-        safeSpawn "mkfifo" ["/tmp/" ++ file]
     xmonad $ ewmh $ docks def
        { borderWidth        = 0
        , terminal           = myTerminal
        , modMask = mod4Mask
        , keys = C.customKeys delkeys inskeys
        , startupHook = setWMName "LG3D" >> addHiddenWorkspace "NSP" >> addEWMHFullscreen >> spawn "~/.xmonad/autorun.sh"
-    --      , manageHook = manageDocks <+> manageHook def
-    --      , layoutHook = avoidStruts $ mylayout
        , manageHook = myManageHook
        , layoutHook = smartBorders . avoidStruts $ mkToggle (NOBORDERS ?? FULL ?? EOT) $ layoutHook defaultConfig
        , XMonad.workspaces = ["Term"]
-    --       , normalBorderColor = "#000000"
-    --       , focusedBorderColor = "#444444"
-       --, logHook = fadeInactiveLogHook 0.95
        , logHook = ewmhDesktopsLogHookCustom scratchpadFilterOutWorkspace
        , handleEventHook = handleEventHook def <+> ewmhDesktopsEventHook  <+> fullscreenEventHook
        }
@@ -150,7 +148,7 @@ main = do
                     swapHook = toggleHookNext "toggle"
 
                     swapHook2 :: X ()
-                    swapHook2 = toggleHookNext "toggle" >> toggleHookNext "newWS"
+                    swapHook2 = appendWorkspacePrompt myXPConfig >> toggleHookNext "toggle"
 
                     -- bindings
 
@@ -215,6 +213,7 @@ main = do
                         , ((modm .|. shiftMask, xK_Left), removeEmptyWorkspaceAfter $ shiftTo Prev (WSIs notSP))
                         , ((modm, xK_Right), moveTo Next (WSIs notSP))
                         , ((modm .|. shiftMask, xK_Right), removeEmptyWorkspaceAfter $ shiftTo Next (WSIs notSP))
+                        , ((modm, xK_k), appendWorkspacePrompt myXPConfig)
 
                         -- me being a jackass
                         , ((modm , xK_q), kill >> (windows . shift) "NSP" >> removeEmptyWorkspaceAfter ((gets (currentTag . windowset)) >>= (\s -> whenX (isEmpty s) $ moveTo Prev (WSIs notSP))))
@@ -240,30 +239,7 @@ main = do
                                            return $ maybe True (isNothing . stack) mws
 
 
-
--- Polybar Workspace shit
-
--- eventLogHook = do
---   winset <- gets windowset
---   title <- maybe (return "") (fmap show . getName) . W.peek $ winset
---   let currWs = W.currentTag winset
---   let wss = map W.tag $ scratchpadFilterOutWorkspace $ W.workspaces winset
---   let wsStr = join $ map (fmt currWs) $ sort' wss
-
---   io $ appendFile "/tmp/.xmonad-title-log" (title ++ "\n")
---   io $ appendFile "/tmp/.xmonad-workspace-log" (wsStr ++ "\n")
-
---   where fmt currWs ws
---           | currWs == ws = "[" ++ ws ++ "]"
---           | otherwise    = " " ++ ws ++ " "
---         sort' = sortBy (compare `on` (!! 0))
--- --        sort' x = rotate (-(length x `quot` 2)) x
--- --        sort' x = x
---         rotate :: Int -> [a] -> [a]
---         rotate _ [] = []
---         rotate n xs = zipWith const (drop n (cycle xs)) xs
-
--- Fuck Firefox
+-- |Fuck Firefox
 addEWMHFullscreen :: X ()
 addEWMHFullscreen   = do
     wms <- getAtom "_NET_WM_STATE"
@@ -280,7 +256,7 @@ addNETSupported x   = withDisplay $ \dpy -> do
        when (fromIntegral x `notElem` sup) $
          changeProperty32 dpy r a_NET_SUPPORTED a propModeAppend [fromIntegral x]
 
--- Adds EWMH _NET_WM_STATE_FULLSCREEN to given window, but no way to remove or actually update the layout yet.
+-- |Adds EWMH _NET_WM_STATE_FULLSCREEN to given window, but no way to remove or actually update the layout yet.
 setWMHint :: Window -> X ()
 setWMHint w = withDisplay $ \dpy -> do
     a <- getAtom "_NET_WM_STATE"
