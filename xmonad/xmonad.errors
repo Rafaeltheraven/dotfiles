@@ -1,30 +1,23 @@
 
-xmonad.hs:42:28: warning: [-Wdeprecations]
+xmonad.hs:43:28: warning: [-Wdeprecations]
     In the use of ‘defaultConfig’
     (imported from XMonad, but defined in XMonad.Config):
     Deprecated: "Use def (from Data.Default, and re-exported by XMonad and XMonad.Config) instead."
    |
-42 | myManageHook = (manageHook defaultConfig <+> manageDocks) <+> manageScratchPad <+> toggleHook' "toggle" nestedToggle namedHook
+43 | myManageHook = (manageHook defaultConfig <+> manageDocks) <+> manageScratchPad <+> toggleHook' "toggle" toggleFriend namedHook
    |                            ^^^^^^^^^^^^^
 
-xmonad.hs:77:13: warning: [-Wtabs]
+xmonad.hs:88:13: warning: [-Wtabs]
     Tab character found here, and in six further locations.
     Please use spaces instead.
    |
-77 |                 ["nextcloud"
+88 |                 ["nextcloud"
    |             ^^^^
 
-xmonad.hs:95:53: warning: [-Wdeprecations]
-    In the use of ‘defaultXPConfig’ (imported from XMonad.Prompt):
-    Deprecated: "Use def (from Data.Default, and re-exported from XMonad.Prompt) instead."
-   |
-95 | newWSFriend = idHook $ liftX (appendWorkspacePrompt defaultXPConfig) >> liftX (toggleHookNext "newWS") >> liftX (toggleHookNext "toggle")
-   |                                                     ^^^^^^^^^^^^^^^
-
-xmonad.hs:110:101: warning: [-Wdeprecations]
+xmonad.hs:111:101: warning: [-Wdeprecations]
     In the use of ‘defaultConfig’
     (imported from XMonad, but defined in XMonad.Config):
     Deprecated: "Use def (from Data.Default, and re-exported by XMonad and XMonad.Config) instead."
     |
-110 |        , layoutHook = smartBorders . avoidStruts $ mkToggle (NOBORDERS ?? FULL ?? EOT) $ layoutHook defaultConfig
+111 |        , layoutHook = smartBorders . avoidStruts $ mkToggle (NOBORDERS ?? FULL ?? EOT) $ layoutHook defaultConfig
     |                                                                                                     ^^^^^^^^^^^^^

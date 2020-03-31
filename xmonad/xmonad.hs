@@ -136,6 +136,7 @@ main = do
                     filebrowser =  terminal ++ " -e ranger"
                     applauncher = "rofi -show drun"
                     sshlauncher = "rofi -show ssh"
+                    calclauncher = "rofi -show calc"
                     textedit = "nano"
                     volumeMixer = terminal ++ " -e pulsemixer"
                     keeplauncher = "keepmenu"
@@ -158,6 +159,7 @@ main = do
                         , ((modm, xK_w), spawn browser)
                         , ((modm, xK_Return), spawn terminal)
                         , ((modm, xK_p), spawn applauncher)
+                        , ((modm, xK_o), spawn calclauncher)
                         , ((modm, xK_s), spawn textedit)
                         , ((modm, xK_z), scratchpadSpawnActionCustom (myTerminal ++ " --name scratchpad --role scratchpad"))
                         , ((modm .|. shiftMask, xK_p), spawn mpdMenu)
