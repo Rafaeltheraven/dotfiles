@@ -144,6 +144,7 @@ main = do
                     mpdMenu = "mpdmenu -g -A -al -c :: -i"
                     mpdControl = "mpdmenu -C -toggle -stop -clear -prev -next -prevA -nextA -c :: -i"
                     tagEditor = "qoobar"
+                    shotTool = "flameshot gui"
                     -- workspace opperations
                     swapHook :: X ()
                     swapHook = toggleHookNext "toggle"
@@ -232,6 +233,8 @@ main = do
                         , ((0, 0x1008FF03), spawn "xbacklight -dec 5")
                         , ((shiftMask, 0x1008FF02), spawn "xbacklight -set 100")
                         , ((shiftMask, 0x1008FF03), spawn "xbacklight -set 0.1")
+
+                        , ((0, xK_Print), spawn shotTool)
                     ]
                     where
                             notSP = (return $ ("NSP" /=) . W.tag) :: X (WindowSpace -> Bool)
