@@ -41,3 +41,5 @@ color15 = #f2f0ec
 [options]
 
 font = Consolas 12
+
+scrollback_lines = -1
