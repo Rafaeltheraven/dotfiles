@@ -23,7 +23,7 @@ for file in $files; do
 				ln -s "$dir/$confdir/$file2" ~/.config/$file2
 			fi
 		done
-	elif [[ "$file" != "install.sh" ] && [ "$file" != "README.md" ]]; then
+	elif [ "$file" != "install.sh" ] && [ "$file" != "README.md" ]; then
 		echo "Found: $file"
 		mv ~/.$file "$olddir"
 		ln -s "$dir/$file" ~/.$file
