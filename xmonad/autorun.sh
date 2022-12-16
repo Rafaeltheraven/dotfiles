@@ -13,13 +13,18 @@ function run {
     fi
 }
 
-run firefox-developer-edition
+run ~/.config/polybar/launch.sh
+#run alacritty
 run termite
 #run telegram-desktop
 run nm-applet
 run redshift-gtk
-run xcompmgr
+#run xcompmgr
 run keepassxc
 #cadence-session-start --system-start
-~/.config/polybar/launch.sh
-exec setxkbmap -layout us -variant euro
+run optimus-manager-qt
+run mailnag
+run firefox-developer-edition
+#exec setxkbmap -layout us -variant euro
+#picom -b
+setxkbmap us -variant altgr-intl
