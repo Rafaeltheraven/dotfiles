@@ -25,7 +25,7 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.XPropManage
 import XMonad.Hooks.ToggleHook
 import XMonad.Hooks.EwmhDesktops
-import XMonad.Util.Scratchpad
+import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run (safeSpawn)
 import XMonad.Util.NamedWindows (getName)
 import XMonad.Util.WorkspaceCompare
@@ -37,25 +37,46 @@ import Data.List (sortBy, find)
 import Data.Maybe (isNothing, maybeToList)
 import Data.Function (on)
 import Control.Monad (forM_, join, when)
+import Data.Ratio
 
 -- We start with some basic definitions
 myTerminal = "termite"
-myManageHook = (manageHook defaultConfig <+> manageDocks) <+> manageScratchPad <+> toggleHook' "toggle" toggleFriend namedHook
+myManageHook = (manageHook def <+> manageDocks) <+> manageScratchPad <+> specialHook <+> toggleHook' "toggle" toggleFriend namedHook
 altMask = mod1Mask
 
 -- |An XPConfig plucked from github, maybe improve later
 myXPConfig :: XPConfig
 myXPConfig =
-  def { position = Top, font = "xft:DejaVu Sans:size=9", height = 40 }
+  def { XMonad.Prompt.position = Top, font = "xft:DejaVu Sans:size=9", height = 40 }
 
 -- |Basic scratchpad managehook stolen from somewhere, don't remember.
+-- manageScratchPad :: ManageHook
+-- manageScratchPad = scratchpadManageHook (W.RationalRect l t w h)
+--    where
+--        h = 0.3 -- terminal height 10%
+--        w = 1 -- terminal width 100%
+--        t = 0.020 -- distance from top edge
+--        l = 1 - w -- distance from left edge
+
 manageScratchPad :: ManageHook
-manageScratchPad = scratchpadManageHook (W.RationalRect l t w h)
+manageScratchPad = namedScratchpadManageHook scratchpads
+
+-- | Float definitions for scratchpads
+scratchFloat = customFloating $ W.RationalRect l t w h
     where
-        h = 0.3 -- terminal height 10%
+        h = 0.3 -- terminal height 30%
         w = 1 -- terminal width 100%
-        t = 0.025 -- distance from top edge
+        t = 0.020 -- distance from top edge (for polybar)
         l = 1 - w -- distance from left edge
+
+-- |Scratchpads, only really termite and alacritty flavors
+scratchpads = 
+    [ NS "termite" "termite --name scratchpad --role scratchpad" (role =? "scratchpad") scratchFloat
+    , NS "alacritty" "alacritty --title scratchpad --class scratchpad" (title =? "scratchpad") scratchFloat
+    ] 
+    where
+        role = stringProperty "WM_WINDOW_ROLE"
+
 
 -- |Takes a tuple with a the name of a workspace and a set of window classNames,
 -- mapping windows to specific workspaces. Returns a list of maybeManageHook to be used in composeOne
@@ -66,6 +87,18 @@ nameHelpFriend (name,names) = [className =? t -?> liftX (appendWorkspace name) >
 querNotElem :: Eq a => Query a -> [a] -> Query Bool
 querNotElem q x = fmap (not . (flip elem x)) q
 
+-- |Special Cases
+specialHook :: ManageHook
+specialHook = composeAll
+    [ className =? "firefoxdeveloperedition" <&&> resource =? "Toolkit" --> doRectFloat (RationalRect x y h w)
+    , title =? "Picture-in-Picture" --> doF copyToAll
+    ]
+    where
+        h = (1 % 4)
+        w = (1 % 4)
+        x = 1-w
+        y = 1-h
+
 -- |The big hook which does all the managing I want.
 namedHook :: ManageHook
 namedHook = composeOne $
@@ -75,25 +108,35 @@ namedHook = composeOne $
     ++ [querNotElem className floatyBoys -?> className >>= (\t -> liftX (appendWorkspace t) >> doShift t)] -- If a window is *not* part of the special float case, created a workspace with the window name and move the window there.
         where
             specialBoys =
-                [("Internet", ["Firefox", "nightly", "Chromium", "Firefox Developer Edition", "firefoxdeveloperedition", "Epiphany"])
-                ,("Office", ["Soffice", "libreoffice-writer"])
-                ,("Develop", ["Sublime Text 3", "subl", "Sublime Text", "Sublime_text", "jetbrains-idea"])
-                ,("Chat", ["TelegramDesktop", "Whatsie", "nheko"])
+                [("Internet", ["Firefox", "nightly", "Chromium", "Firefox Developer Edition", "firefoxdeveloperedition", "Epiphany", "Brave", "Brave-browser", "\"firefoxdeveloperedition\""])
+                ,("Develop", ["Sublime Text 3", "subl", "Sublime Text", "Sublime_text", "jetbrains-idea", "Subl3"])
+                ,("Chat", ["TelegramDesktop", "Whatsie", "nheko", "Signal"])
                 ,("E-Mail", ["Thunderbird"])
-                ,("Term", [myTerminal, "xterm", "Termite"])
+                ,("Term", [myTerminal, "xterm", "Termite", "Alacritty"])
                 ,("Reading", ["Evince"])
                 ,("Keepass", ["keepassxc", "KeePassXC"])
+                ,("Vidya", ["steam", "Steam", "Zenity"])
+                ,("FFXIV", ["XIVLauncher.Core", "XIVLauncher", "ffxiv_dx11.exe", "ffxiv.exe"])
+                ,("Office", ["libreoffice-writer", "libreoffice", "libreoffice-calc"])
+                ,("VirtualBox", ["VirtualBox", "VirtualBox Manager", "VirtualBoxVM"])
                 ]
             floatyBoys =
-            	["nextcloud"
-            	,"Polybar"
-            	,"scratchpad"
-            	,"polybar"
-            	,"Gcr-prompter"
-            	,"Xmessage"
---            	,"keepassxc"
---            	,"KeePassXC"
-            	]
+                ["nextcloud"
+                ,"Polybar"
+                ,"scratchpad"
+                ,"polybar"
+                ,"Gcr-prompter"
+                ,"Xmessage"
+--              ,"keepassxc"
+--              ,"KeePassXC"
+                -- ,"Steam"
+                -- ,"steam"
+                -- ,"Soffice"
+                -- ,"Libreoffice"
+                -- ,"Calc"
+                -- ,"Writer"
+                ,"Picture-in-Picture"
+                ]
 
 -- |A basic managehook used to toggle the big namedHook back on.
 toggleFriend :: ManageHook
@@ -101,17 +144,16 @@ toggleFriend = idHook $ liftX (toggleHookNext "toggle")
 
 main :: IO ()
 main = do
-    xmonad $ ewmh $ docks def
+    xmonad $ ewmhFullscreen $ ewmh $ addEwmhWorkspaceSort (pure $ filterOutWs ["NSP"]) $ docks def
        { borderWidth        = 0
        , terminal           = myTerminal
-       , modMask = mod4Mask
+       , modMask = mod1Mask
        , keys = C.customKeys delkeys inskeys
        , startupHook = setWMName "LG3D" >> addHiddenWorkspace "NSP" >> addEWMHFullscreen >> spawn "~/.xmonad/autorun.sh"
        , manageHook = myManageHook
-       , layoutHook = smartBorders . avoidStruts $ mkToggle (NOBORDERS ?? FULL ?? EOT) $ layoutHook defaultConfig
+       , layoutHook = smartBorders . avoidStruts $ mkToggle (NOBORDERS ?? FULL ?? EOT) $ layoutHook def
        , XMonad.workspaces = ["Term"]
-       , logHook = ewmhDesktopsLogHookCustom scratchpadFilterOutWorkspace
-       , handleEventHook = handleEventHook def <+> ewmhDesktopsEventHook  <+> fullscreenEventHook
+       , handleEventHook = handleEventHook def
        }
         where
             mylayout = (Tall 1 (3/100) (1/2) ) ||| Grid (16/9) ||| simpleTabbed
@@ -162,7 +204,8 @@ main = do
                         , ((modm, xK_p), spawn applauncher)
                         , ((modm, xK_o), spawn calclauncher)
                         , ((modm, xK_s), spawn textedit)
-                        , ((modm, xK_z), scratchpadSpawnActionCustom (myTerminal ++ " --name scratchpad --role scratchpad"))
+--                        , ((modm, xK_z), scratchpadSpawnActionCustom ("alacritty --title scratchpad --class scratchpad")) -- Alacritty
+                        , ((modm, xK_z), namedScratchpadAction scratchpads "termite") -- Termite
                         , ((modm .|. shiftMask, xK_p), spawn mpdMenu)
                         , ((modm .|. shiftMask, xK_c), spawn mpdControl)
                         , ((modm .|. shiftMask, xK_s), spawn sshlauncher)
@@ -229,10 +272,10 @@ main = do
                         , ((0, 0x1008FFb2), spawn "pactl set-source-mute 1 toggle")
                         , ((modm, 0x1008FF12), spawn volumeMixer)
 
-                        , ((0, 0x1008FF02), spawn "xbacklight -inc 5")
-                        , ((0, 0x1008FF03), spawn "xbacklight -dec 5")
-                        , ((shiftMask, 0x1008FF02), spawn "xbacklight -set 100")
-                        , ((shiftMask, 0x1008FF03), spawn "xbacklight -set 0.1")
+                        , ((0, 0x1008FF02), spawn "light -A 5")
+                        , ((0, 0x1008FF03), spawn "light -U 5")
+                        , ((shiftMask, 0x1008FF02), spawn "light -S 100")
+                        , ((shiftMask, 0x1008FF03), spawn "light -S 0.1")
 
                         , ((0, xK_Print), spawn shotTool)
                     ]
