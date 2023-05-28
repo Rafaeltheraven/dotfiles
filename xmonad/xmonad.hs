@@ -119,6 +119,7 @@ namedHook = composeOne $
                 ,("FFXIV", ["XIVLauncher.Core", "XIVLauncher", "ffxiv_dx11.exe", "ffxiv.exe"])
                 ,("Office", ["libreoffice-writer", "libreoffice", "libreoffice-calc"])
                 ,("VirtualBox", ["VirtualBox", "VirtualBox Manager", "VirtualBoxVM"])
+		,("Naughty Corner", ["", " ", "\n"])
                 ]
             floatyBoys =
                 ["nextcloud"
@@ -178,13 +179,13 @@ main = do
                     filebrowser =  terminal ++ " -e ranger"
                     applauncher = "rofi -show drun"
                     sshlauncher = "rofi -show ssh"
-                    calclauncher = "rofi -show calc"
+                    calclauncher = "rofi -show calc -modi calc -no-show-match -no-sort"
                     textedit = "nano"
                     volumeMixer = terminal ++ " -e pulsemixer"
                     keeplauncher = "keepmenu"
                     mpdClient = "cantata"
                     mpdMenu = "mpdmenu -g -A -al -c :: -i"
-                    mpdControl = "mpdmenu -C -toggle -stop -clear -prev -next -prevA -nextA -c :: -i"
+                    mpdControl = "mpdmenu -C -nextA -prevA -toggle -next -prev -stop -clear -c :: -i"
                     tagEditor = "qoobar"
                     shotTool = "flameshot gui"
                     -- workspace opperations

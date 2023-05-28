@@ -1,23 +1,8 @@
+$ ghc --make xmonad.hs -i -ilib -fforce-recomp -main-is main -dynamic -v0 -outputdir /home/rafael/.xmonad/build-x86_64-linux -o /home/rafael/.xmonad/xmonad-x86_64-linux
 
-xmonad.hs:43:28: warning: [-Wdeprecations]
-    In the use of ‘defaultConfig’
-    (imported from XMonad, but defined in XMonad.Config):
-    Deprecated: "Use def (from Data.Default, and re-exported by XMonad and XMonad.Config) instead."
-   |
-43 | myManageHook = (manageHook defaultConfig <+> manageDocks) <+> manageScratchPad <+> toggleHook' "toggle" toggleFriend namedHook
-   |                            ^^^^^^^^^^^^^
-
-xmonad.hs:88:13: warning: [-Wtabs]
-    Tab character found here, and in six further locations.
+xmonad.hs:122:1: warning: [-Wtabs]
+    Tab character found here, and in one further location.
     Please use spaces instead.
-   |
-88 |                 ["nextcloud"
-   |             ^^^^
-
-xmonad.hs:111:101: warning: [-Wdeprecations]
-    In the use of ‘defaultConfig’
-    (imported from XMonad, but defined in XMonad.Config):
-    Deprecated: "Use def (from Data.Default, and re-exported by XMonad and XMonad.Config) instead."
     |
-111 |        , layoutHook = smartBorders . avoidStruts $ mkToggle (NOBORDERS ?? FULL ?? EOT) $ layoutHook defaultConfig
-    |                                                                                                     ^^^^^^^^^^^^^
+122 |                 ,("Naughty Corner", ["", " ", "\n"])
+    | ^^^^^^^^
